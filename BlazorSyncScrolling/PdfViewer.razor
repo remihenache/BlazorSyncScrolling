@@ -1,0 +1,51 @@
+﻿@inherits BlazorSyncScrolling.SyncScroll.SyncScrollable
+
+<div class="pdf-viewer-container">
+    <div class="pdf-viewer-toolbar">
+        <label for="zoom">Zoom :</label>
+        <input type="number" id="zoom" step="0.1" min="0.5" max="3.0"
+               @bind="Zoom" />
+        <div class="spacer"></div>
+        <span>@CurrentPage / @TotalPages</span>
+    </div>
+
+    <div id="@ScrollableContainerId" class="pdf-viewer-content"></div>
+</div>
+
+<style>
+    .pdf-viewer-container {
+        display: flex;
+        font-size: 12px;
+        flex-direction: column;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .pdf-viewer-toolbar {
+        display: flex;
+        align-items: center;
+        background-color: #f3f3f3;
+        padding: 8px 12px;
+        border-bottom: 1px solid #ccc;
+        gap: 8px;
+    }
+
+        .pdf-viewer-toolbar input[type="number"] {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+    .pdf-viewer-content {
+        width: 100%;
+        height: 600px;
+        overflow-y: auto;
+        background-color: #fafafa;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+</style>

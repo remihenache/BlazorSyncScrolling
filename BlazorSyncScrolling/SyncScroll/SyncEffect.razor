@@ -1,0 +1,7 @@
+﻿@if (SelectedIds != null)
+{
+    @foreach(var containerId in SelectedIds)
+    {
+        <div style="display:none" data="@containerId"></div> @* Invisible, just to trigger JS *@
+    }
+}
