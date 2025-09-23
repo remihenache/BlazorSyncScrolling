@@ -5,7 +5,10 @@
         console.error("PDF.js is not loaded. Make sure to include the PDF.js script.");
         return;
     }
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.min.mjs';
+    // Worker is already configured in index.html, but set it here as fallback
+    if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '_content/BlazorSyncScrolling/pdf.worker.mjs';
+    }
 
     const container = document.getElementById(containerId);
     container.innerHTML = ''; 

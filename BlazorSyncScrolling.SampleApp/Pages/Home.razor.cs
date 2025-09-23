@@ -8,6 +8,7 @@ public partial class Home
     private string? Pdf1Source { get; set; }
     private string? Pdf2Source { get; set; }
     private bool IsSyncEnabled { get; set; } = true;
+    public IReadOnlyCollection<string>? ViewerIds = new[] { "pdf1", "pdf2" };
 
     private async Task OnPdf1Selected(InputFileChangeEventArgs e)
     {

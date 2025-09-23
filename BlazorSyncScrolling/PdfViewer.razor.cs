@@ -14,7 +14,7 @@ public partial class PdfViewer: SyncScrollable
     private int TotalPages { get; set; } = 1;
 
     private IJSObjectReference? _pdfInstance;
-    private double _zoom;
+    private double _zoom = 1;
 
     [Parameter]
     public double Zoom

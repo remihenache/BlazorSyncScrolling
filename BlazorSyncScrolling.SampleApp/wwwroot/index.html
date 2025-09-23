@@ -8,6 +8,7 @@
     <base href="/" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/web/pdf_viewer.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="BlazorSyncScrolling.SampleApp.styles.css" rel="stylesheet" />
@@ -28,14 +29,12 @@
         <span class="dismiss">🗙</span>
     </div>
 
-    <!-- PDF.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.min.mjs" type="module"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.min.mjs" type="module"></script>
-
-    <!-- PDF Viewer JavaScript -->
-    <script src="pdf-viewer.js"></script>
-
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/BlazorSyncScrolling/pdf.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf.worker.mjs"></script>
+    <!-- PDF Viewer JavaScript from Library -->
+    <script src="_content/BlazorSyncScrolling/pdf-viewer.js"></script>
+
 </body>
 
 </html>

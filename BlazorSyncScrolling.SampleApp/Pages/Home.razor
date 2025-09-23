@@ -66,7 +66,7 @@
     }
     else
     {
-        <SyncScrollCoordinator>
+        <SyncScrollCoordinator ContainerIds="@ViewerIds">
             <div class="row g-3">
                 @if (!string.IsNullOrEmpty(Pdf1Source))
                 {
@@ -79,7 +79,7 @@
                                 </h6>
                             </div>
                             <div class="card-body p-0">
-                                <PdfViewer Src="@Pdf1Source" CanSyncScroll="@IsSyncEnabled" />
+                                <PdfViewer Src="@Pdf1Source" Zoom="1" CanSyncScroll="@IsSyncEnabled" ScrollableContainerId="pdf1" />
                             </div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                                 </h6>
                             </div>
                             <div class="card-body p-0">
-                                <PdfViewer Src="@Pdf2Source" CanSyncScroll="@IsSyncEnabled" />
+                                <PdfViewer Src="@Pdf2Source" Zoom="1"  CanSyncScroll="@IsSyncEnabled" ScrollableContainerId="pdf2"  />
                             </div>
                         </div>
                     </div>

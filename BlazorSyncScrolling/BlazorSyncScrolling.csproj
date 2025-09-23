@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <PackageId>BlazorSyncScrolling</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
