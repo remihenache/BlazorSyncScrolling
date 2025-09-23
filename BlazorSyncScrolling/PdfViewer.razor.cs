@@ -30,6 +30,9 @@ public partial class PdfViewer: SyncScrollable
         }
     }
 
+    [Parameter]
+    public EventCallback<double> ZoomChanged { get; set; }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !string.IsNullOrEmpty(Src))
@@ -52,6 +55,7 @@ public partial class PdfViewer: SyncScrollable
         {
             await _pdfInstance.InvokeVoidAsync("updateScale", _zoom);
         }
+        await ZoomChanged.InvokeAsync(_zoom);
     }
     private async Task UpdateCurrentPage()
     {
