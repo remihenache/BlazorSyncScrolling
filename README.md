@@ -40,21 +40,7 @@ dotnet add package BlazorSyncScrolling
 
 ## Quick Start
 
-### 1. Add to Program.cs
-
-```csharp
-using BlazorSyncScrolling;
-
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-
-// Add BlazorSyncScrolling services
-builder.Services.AddBlazorSyncScrolling();
-
-await builder.Build().RunAsync();
-```
-
-### 2. Add PDF.js to your index.html
+### 1. Add PDF.js to your index.html
 
 ```html
 <!DOCTYPE html>
@@ -62,11 +48,11 @@ await builder.Build().RunAsync();
 <head>
     <!-- ... other head elements ... -->
 
-    <!-- Add PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.min.mjs"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.mjs';
-    </script>
+    <!-- Add sync scrolling scripts -->
+    <script src="_content/BlazorSyncScrolling/pdf.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf.worker.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf-viewer.js"></script>
+
 </head>
 <body>
     <!-- ... your app ... -->
@@ -74,7 +60,7 @@ await builder.Build().RunAsync();
 </html>
 ```
 
-### 3. Basic Usage
+### 2. Basic Usage
 
 ```razor
 @page "/"
