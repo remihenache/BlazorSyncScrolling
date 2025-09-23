@@ -40,21 +40,7 @@ dotnet add package BlazorSyncScrolling
 
 ## Quick Start
 
-### 1. Add to Program.cs
-
-```csharp
-using BlazorSyncScrolling;
-
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-
-// Add BlazorSyncScrolling services
-builder.Services.AddBlazorSyncScrolling();
-
-await builder.Build().RunAsync();
-```
-
-### 2. Add PDF.js to your index.html
+### 1. Add PDF.js to your index.html
 
 ```html
 <!DOCTYPE html>
@@ -62,11 +48,11 @@ await builder.Build().RunAsync();
 <head>
     <!-- ... other head elements ... -->
 
-    <!-- Add PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.min.mjs"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.mjs';
-    </script>
+    <!-- Add sync scrolling scripts -->
+    <script src="_content/BlazorSyncScrolling/pdf.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf.worker.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf-viewer.js"></script>
+
 </head>
 <body>
     <!-- ... your app ... -->
@@ -74,52 +60,62 @@ await builder.Build().RunAsync();
 </html>
 ```
 
-### 3. Basic Usage
+### 2. Basic Usage
 
 ```razor
 @page "/"
 @using BlazorSyncScrolling
-@using BlazorSyncScrolling.Components
 
 <h1>Synchronized PDF Viewer</h1>
 
-<SyncScrollCoordinator @bind-IsEnabled="@isSyncEnabled">
+<div class="mb-3">
+    <button @onclick="ToggleSync" class="btn btn-primary">
+        @(isSyncEnabled ? "Disable" : "Enable") Sync
+    </button>
+</div>
+
+<!-- CRITICAL: ContainerIds parameter is mandatory and must contain all PDF viewer IDs -->
+<SyncScrollCoordinator ContainerIds="@viewerIds">
     <div class="row">
         <div class="col-md-6">
+            <!-- REQUIRED: ScrollableContainerId must be unique and included in ContainerIds -->
             <PdfViewer
                 ScrollableContainerId="pdf1"
                 CanSyncScroll="@isSyncEnabled"
-                PdfData="@pdfData1"
-                @bind-PageNumber="@currentPage1"
-                @bind-ZoomLevel="@zoomLevel1" />
+                Src="@pdfSource1"
+                Zoom="1.0" />
         </div>
         <div class="col-md-6">
+            <!-- REQUIRED: ScrollableContainerId must be unique and included in ContainerIds -->
             <PdfViewer
                 ScrollableContainerId="pdf2"
                 CanSyncScroll="@isSyncEnabled"
-                PdfData="@pdfData2"
-                @bind-PageNumber="@currentPage2"
-                @bind-ZoomLevel="@zoomLevel2" />
+                Src="@pdfSource2"
+                Zoom="1.0" />
         </div>
     </div>
 </SyncScrollCoordinator>
 
-<button @onclick="ToggleSync">
-    @(isSyncEnabled ? "Disable" : "Enable") Sync
-</button>
-
 @code {
     private bool isSyncEnabled = true;
-    private byte[] pdfData1;
-    private byte[] pdfData2;
-    private int currentPage1 = 1;
-    private int currentPage2 = 1;
-    private double zoomLevel1 = 1.0;
-    private double zoomLevel2 = 1.0;
+    private string? pdfSource1;
+    private string? pdfSource2;
+
+    // CRITICAL: This array must contain all PDF viewer IDs for synchronization to work
+    private readonly IReadOnlyCollection<string> viewerIds = new[] { "pdf1", "pdf2" };
 
     private void ToggleSync()
     {
         isSyncEnabled = !isSyncEnabled;
+    }
+
+    protected override void OnInitialized()
+    {
+        // Example: Load PDF from URL or base64 data
+        pdfSource1 = "path/to/document1.pdf";
+        pdfSource2 = "path/to/document2.pdf";
+
+        // For base64 data: pdfSource1 = "data:application/pdf;base64,JVBERi0xLjMK...";
     }
 }
 ```
@@ -131,12 +127,22 @@ await builder.Build().RunAsync();
 The root component that manages synchronization state across all child components.
 
 **Parameters:**
-- `IsEnabled` (bool): Controls whether synchronization is active
+- `ContainerIds` (IReadOnlyCollection<string>) **[REQUIRED]**: Collection of container IDs that should participate in synchronization
 - `ChildContent` (RenderFragment): Child components to coordinate
+
+**Critical Notes:**
+- The `ContainerIds` parameter is **mandatory** - synchronization will not work without it
+- This array must contain the exact `ScrollableContainerId` values of all PDF viewers you want to synchronize
+- The JavaScript synchronization engine uses these IDs to coordinate scrolling between containers
 
 **Example:**
 ```razor
-<SyncScrollCoordinator @bind-IsEnabled="@syncEnabled">
+@code {
+    // Define the viewer IDs that will be synchronized
+    private readonly IReadOnlyCollection<string> syncIds = new[] { "viewer1", "viewer2", "viewer3" };
+}
+
+<SyncScrollCoordinator ContainerIds="@syncIds">
     <!-- Your synchronized components here -->
 </SyncScrollCoordinator>
 ```
@@ -146,21 +152,23 @@ The root component that manages synchronization state across all child component
 A complete PDF viewer component with built-in synchronization support.
 
 **Parameters:**
-- `ScrollableContainerId` (string): Unique identifier for the viewer
+- `ScrollableContainerId` (string) **[REQUIRED]**: Unique identifier for the viewer container
 - `CanSyncScroll` (bool): Whether this viewer participates in synchronization
-- `PdfData` (byte[]): PDF file data
-- `PageNumber` (int): Current page number (two-way binding)
-- `ZoomLevel` (double): Zoom level (two-way binding)
-- `Height` (string): Container height (default: "600px")
+- `Src` (string): PDF source URL or base64 data string
+- `Zoom` (double): Zoom level (default: 1.0)
+
+**Critical Notes:**
+- `ScrollableContainerId` must be unique across all viewers in your application
+- This ID must be included in the `ContainerIds` array of the `SyncScrollCoordinator`
+- The component automatically registers with the synchronization system when wrapped in a `SyncScrollCoordinator`
 
 **Example:**
 ```razor
 <PdfViewer
     ScrollableContainerId="document1"
     CanSyncScroll="true"
-    PdfData="@pdfBytes"
-    @bind-PageNumber="@currentPage"
-    @bind-ZoomLevel="@zoom" />
+    Src="@pdfUrl"
+    Zoom="1.5" />
 ```
 
 ## Advanced Usage
@@ -195,46 +203,69 @@ You can create your own synchronized scrollable components by inheriting from `S
 <InputFile OnChange="@LoadFile" accept=".pdf" />
 
 @code {
+    private string? pdfSource;
+
     private async Task LoadFile(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        if (file != null)
+        if (file != null && file.ContentType == "application/pdf")
         {
-            using var stream = file.OpenReadStream(maxFileSize: 50 * 1024 * 1024); // 50MB limit
+            using var stream = file.OpenReadStream(maxAllowedSize: 50 * 1024 * 1024); // 50MB limit
             using var memoryStream = new MemoryStream();
             await stream.CopyToAsync(memoryStream);
-            pdfData = memoryStream.ToArray();
+
+            // Convert to base64 data URL for PdfViewer.Src
+            var buffer = memoryStream.ToArray();
+            var base64 = Convert.ToBase64String(buffer);
+            pdfSource = $"data:application/pdf;base64,{base64}";
         }
     }
 }
 ```
 
-### Programmatic Scroll Control
+## Important Requirements Summary
 
-```csharp
-@inject IJSRuntime JSRuntime
+For the library to work correctly, you **MUST**:
 
-private async Task ScrollToPage(int pageNumber)
-{
-    await JSRuntime.InvokeVoidAsync("scrollToPage", ScrollableContainerId, pageNumber);
-}
-```
+1. **Define Container IDs Array**: Create an array containing all PDF viewer IDs
+   ```csharp
+   private readonly IReadOnlyCollection<string> viewerIds = new[] { "pdf1", "pdf2" };
+   ```
+
+2. **Pass Container IDs to Coordinator**: The `ContainerIds` parameter is mandatory
+   ```razor
+   <SyncScrollCoordinator ContainerIds="@viewerIds">
+   ```
+
+3. **Use Matching Container IDs**: Each PdfViewer's `ScrollableContainerId` must be included in the array
+   ```razor
+   <PdfViewer ScrollableContainerId="pdf1" ... />
+   <PdfViewer ScrollableContainerId="pdf2" ... />
+   ```
+
+4. **Include PDF.js Scripts**: Add the CDN scripts to your index.html
+   ```html
+    <script src="_content/BlazorSyncScrolling/pdf.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf.worker.mjs"></script>
+    <script src="_content/BlazorSyncScrolling/pdf-viewer.js"></script>
+   ```
 
 ## JavaScript Interop
 
-The library provides JavaScript functions for advanced scenarios:
+The library uses these JavaScript functions internally:
 
 ```javascript
-// Load a PDF programmatically
-await window.loadPdf(containerId, pdfData, zoomLevel);
+// Load a PDF (called automatically by PdfViewer component)
+await window.loadPdf(pdfUrl, containerId, initialZoom);
 
-// Register custom scroll handlers
-window.registerScrollHandler(containerId, (scrollData) => {
-    console.log(`Scrolled to position: ${scrollData.scrollTop}`);
-});
+// Create scroll synchronizer (called by SyncScrollCoordinator)
+const synchronizer = window.scrollSynchronizer(containerIds);
 
-// Synchronize scroll positions manually
-window.scrollSynchronizer.syncScroll(sourceId, targetIds, scrollData);
+// Enable synchronization for active viewers
+synchronizer.enableSyncScroll(activeContainerIds);
+
+// Register scroll callback (used for page tracking)
+window.registerScrollHandler(containerId, dotNetObjectReference);
 ```
 
 ## Browser Support
@@ -258,7 +289,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/BlazorSyncScrolling.git
+git clone https://github.com/remihenache/BlazorSyncScrolling.git
 ```
 
 2. Build the solution
